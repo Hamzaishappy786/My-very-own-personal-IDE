@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/mascot.png" alt="Hello Everynyan!" width="200"/>
+  <img src="https://raw.githubusercontent.com/Hamzaishappy786/hator/main/assets/mascot.png" alt="Hello Everynyan!" width="200"/>
 
   # Hator
 

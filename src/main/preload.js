@@ -17,6 +17,21 @@ contextBridge.exposeInMainWorld('api', {
     },
   },
 
+  debug: {
+    start:           (filePath, bpLines) => ipcRenderer.invoke('debug:start', filePath, bpLines),
+    stop:            ()                  => ipcRenderer.invoke('debug:stop'),
+    setBreakpoint:   (fp, ln)            => ipcRenderer.invoke('debug:setBreakpoint',   { filePath: fp, lineNumber: ln }),
+    removeBreakpoint:(fp, ln)            => ipcRenderer.invoke('debug:removeBreakpoint', { filePath: fp, lineNumber: ln }),
+    resume:          ()                  => ipcRenderer.invoke('debug:resume'),
+    stepOver:        ()                  => ipcRenderer.invoke('debug:stepOver'),
+    stepInto:        ()                  => ipcRenderer.invoke('debug:stepInto'),
+    stepOut:         ()                  => ipcRenderer.invoke('debug:stepOut'),
+    onPaused:  (cb) => { const fn = (_, d) => cb(d); ipcRenderer.on('debug:paused',  fn); return () => ipcRenderer.removeListener('debug:paused',  fn); },
+    onResumed: (cb) => { const fn = (_, d) => cb(d); ipcRenderer.on('debug:resumed', fn); return () => ipcRenderer.removeListener('debug:resumed', fn); },
+    onOutput:  (cb) => { const fn = (_, d) => cb(d); ipcRenderer.on('debug:output',  fn); return () => ipcRenderer.removeListener('debug:output',  fn); },
+    onStopped: (cb) => { const fn = (_, d) => cb(d); ipcRenderer.on('debug:stopped', fn); return () => ipcRenderer.removeListener('debug:stopped', fn); },
+  },
+
   terminal: {
     getShellPresets: () => ipcRenderer.invoke('terminal:getShellPresets'),
     create: (opts) => ipcRenderer.invoke('terminal:create', opts),

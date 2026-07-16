@@ -5,13 +5,17 @@ const os = require('os');
 const pty = require('node-pty');
 const gitService = require('./git/gitService');
 const { DiffEngine } = require('./git/diffEngine');
+const { DebugSession } = require('./debug/debugSession');
 
 let mainWindow;
+
+app.setName('Hator');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'Hator',
     backgroundColor: '#1e1e1e',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -41,6 +45,7 @@ app.on('before-quit', () => {
   killAllPtys();
   closeAllGitWatchers();
   diffEngine.dispose();
+  activeDebugSession?.stop();
 });
 
 function readDirTree(dirPath) {
@@ -226,3 +231,49 @@ ipcMain.handle('git:getHeadContent', async (_event, { repoRoot, relativePath }) 
 ipcMain.handle('git:computeDiff', async (_event, { oldText, newText }) => {
   return diffEngine.computeLineDiff(oldText, newText);
 });
+
+// --- Node.js debugger (CDP over V8 inspector) --------------------------------
+let activeDebugSession = null;
+
+function debugEmit(name, data) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(`debug:${name}`, data);
+  }
+}
+
+ipcMain.handle('debug:start', async (_event, filePath, initialBpLines) => {
+  activeDebugSession?.stop();
+  activeDebugSession = null;
+
+  const session = new DebugSession(debugEmit);
+  activeDebugSession = session;
+
+  try {
+    await session.start(filePath, initialBpLines || []);
+    return { ok: true };
+  } catch (e) {
+    activeDebugSession = null;
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('debug:stop', () => {
+  activeDebugSession?.stop();
+  activeDebugSession = null;
+  return true;
+});
+
+ipcMain.handle('debug:setBreakpoint', async (_event, { filePath, lineNumber }) => {
+  await activeDebugSession?.setBreakpoint(filePath, lineNumber);
+  return true;
+});
+
+ipcMain.handle('debug:removeBreakpoint', async (_event, { filePath, lineNumber }) => {
+  await activeDebugSession?.removeBreakpoint(filePath, lineNumber);
+  return true;
+});
+
+ipcMain.handle('debug:resume',   () => activeDebugSession?.resume());
+ipcMain.handle('debug:stepOver', () => activeDebugSession?.stepOver());
+ipcMain.handle('debug:stepInto', () => activeDebugSession?.stepInto());
+ipcMain.handle('debug:stepOut',  () => activeDebugSession?.stepOut());

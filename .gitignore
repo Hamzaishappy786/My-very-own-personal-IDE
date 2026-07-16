@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# Electron build artifacts
+release/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor config
+.vscode/
+.idea/
+
+# Claude Code local config
+.claude/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/

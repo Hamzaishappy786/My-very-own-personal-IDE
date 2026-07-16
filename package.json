@@ -1,0 +1,43 @@
+{
+  "name": "hator",
+  "productName": "Hator",
+  "version": "0.1.0",
+  "description": "A lightweight, custom desktop code editor built with Electron and Monaco.",
+  "main": "src/main/main.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/renderer/tailwind.css -o ./src/renderer/tailwind.build.css --minify",
+    "prestart": "npm run build:css",
+    "start": "electron .",
+    "predist": "npm run build:css",
+    "dist": "electron-builder",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.2",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^3.4.19"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "monaco-editor": "^0.50.0",
+    "node-pty": "^1.1.0"
+  },
+  "build": {
+    "appId": "com.hator.editor",
+    "files": [
+      "src/**/*",
+      "node_modules/monaco-editor/min/**/*",
+      "node_modules/@xterm/xterm/lib/**/*",
+      "node_modules/@xterm/xterm/css/**/*",
+      "node_modules/@xterm/addon-fit/lib/**/*",
+      "node_modules/node-pty/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

@@ -23,11 +23,16 @@
   .tree-node.selected {
     @apply bg-dracula-current text-dracula-cyan;
   }
-  .tree-node .icon {
-    @apply mr-1.5 w-3.5 inline-block text-center shrink-0 text-dracula-comment transition-transform duration-150;
+  /* Chevron arrow for directory expand/collapse */
+  .tree-chevron {
+    @apply mr-0.5 w-4 h-4 shrink-0 text-dracula-comment flex items-center justify-center transition-[transform,color] duration-150;
   }
-  .tree-node:hover .icon {
-    @apply scale-110 text-dracula-fg;
+  .tree-node:hover .tree-chevron {
+    @apply text-dracula-fg;
+  }
+  /* Language / folder icon badge */
+  .tree-file-icon {
+    @apply mr-1.5 shrink-0 flex items-center leading-none;
   }
 
   .tree-children {
@@ -144,6 +149,52 @@
   #terminal-resizer.visible {
     display: block;
   }
+
+  /* Debug panel — same show/hide pattern as terminal */
+  #debug-panel {
+    display: none;
+    flex-direction: column;
+  }
+  #debug-panel.visible {
+    display: flex;
+  }
+  #debug-resizer {
+    display: none;
+  }
+  #debug-resizer.visible {
+    display: block;
+  }
+
+  /* Debug toolbar step buttons */
+  .debug-ctrl-btn {
+    @apply flex items-center justify-center w-7 h-7 rounded text-dracula-comment
+           hover:text-dracula-fg hover:bg-dracula-current/60
+           transition-all duration-150 hover:scale-110 active:scale-90
+           disabled:opacity-30 disabled:pointer-events-none disabled:hover:scale-100;
+  }
+
+  /* Call-stack frames */
+  .debug-frame {
+    @apply py-0.5 px-1.5 rounded text-[12px] text-dracula-comment
+           hover:bg-dracula-current/40 cursor-default truncate;
+  }
+  .debug-frame.active {
+    @apply text-dracula-yellow;
+  }
+
+  /* Variable rows */
+  .debug-var-row {
+    @apply flex items-baseline py-[1px] text-[12px] leading-5;
+  }
+  .debug-var-name  { @apply text-dracula-cyan shrink-0; }
+  .debug-var-sep   { @apply text-dracula-comment mx-1 shrink-0; }
+  .debug-var-value { @apply text-dracula-fg truncate; }
+  .debug-var-type-number   { @apply text-dracula-purple; }
+  .debug-var-type-string   { @apply text-dracula-yellow; }
+  .debug-var-type-boolean  { @apply text-dracula-orange; }
+  .debug-var-type-undefined{ @apply text-dracula-comment; }
+  .debug-var-type-object   { @apply text-dracula-pink; }
+  .debug-var-type-function { @apply text-dracula-green; }
 }
 
 /*
@@ -174,6 +225,37 @@
 .monaco-editor .hator-git-deleted {
   position: relative;
 }
+/*
+ * Breakpoint glyph — red circle in Monaco's glyph margin (left of line numbers).
+ * Glyph margin must be enabled via { glyphMargin: true } in editor options.
+ */
+.monaco-editor .hator-bp-glyph {
+  background: #ff5555;
+  border-radius: 50%;
+  width: 10px !important;
+  height: 10px !important;
+  margin: 3px 0 0 3px;
+  cursor: pointer;
+}
+
+/*
+ * Current debug line — yellow tint + left border, whole line.
+ */
+.monaco-editor .hator-debug-current-line {
+  background-color: rgba(241, 250, 140, 0.08);
+  border-left: 2px solid #f1fa8c;
+}
+
+/* Arrow in glyph margin pointing at the current debug line */
+.monaco-editor .hator-debug-arrow {
+  width: 0 !important;
+  height: 0 !important;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #f1fa8c;
+  margin: 3px 0 0 2px;
+}
+
 .monaco-editor .hator-git-deleted::before {
   content: '';
   position: absolute;

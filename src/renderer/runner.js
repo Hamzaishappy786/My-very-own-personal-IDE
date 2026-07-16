@@ -80,7 +80,7 @@
 
   function writeAiExplanation(text) {
     const width = 58;
-    write('\r\n\x1b[36m┌─ AI Explanation (Groq) ────────────────────\x1b[0m\r\n');
+    write('\r\n\x1b[36m┌─ Hator AI ─────────────────────────────────\x1b[0m\r\n');
     wrapText(text, width).forEach((line) => write(`\x1b[36m│\x1b[0m ${line}\r\n`));
     write('\x1b[36m└─────────────────────────────────────────────\x1b[0m\r\n');
   }
@@ -107,7 +107,7 @@
             {
               role: 'system',
               content:
-                'You explain programming errors to a beginner in plain English. Be concise (2-4 sentences): say what went wrong and the concrete fix, e.g. the exact install command for a missing dependency. No jargon, no code fences unless a shell command is needed.',
+                'You explain programming errors to a beginner in plain English. Be concise (2-4 sentences): say what went wrong and the concrete fix, e.g. the exact install command for a missing dependency. No jargon, no code fences unless a shell command is needed. Never mention other editors or IDEs (PyCharm, VS Code, Visual Studio, Vim, etc.) — the user is running Hator, so refer to Hator if you need to mention the editor at all.',
             },
             { role: 'user', content: errorText.slice(-MAX_ERROR_CHARS) },
           ],

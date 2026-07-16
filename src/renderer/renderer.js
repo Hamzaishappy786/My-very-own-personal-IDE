@@ -75,8 +75,15 @@ require(['vs/editor/editor.main'], () => {
     automaticLayout: true,
     fontSize: 13,
     minimap: { enabled: true },
+    glyphMargin: true,
     value: '',
   });
+
+  // Expose for debugger.js (which loads before this require() callback runs)
+  window.__hatorEditor = editor;
+  window.__hatorGetModel = (fp) => openFiles.get(fp)?.model;
+  window.HatorDebugger?.setupEditor(editor);
+  window.HatorCharPop?.setupEditor(editor);
 
   editor.onDidChangeModelContent(() => {
     if (!activeFilePath) return;
@@ -295,6 +302,7 @@ function closeFile(filePath) {
     } else if (editor) {
       editor.setModel(null);
       window.HatorRunner?.onActiveFileChanged(null);
+      window.HatorDebugger?.onActiveFileChanged(null);
     }
   }
   renderTabs();
@@ -315,6 +323,7 @@ function activateFile(filePath) {
   highlightSelectedNode(filePath);
   window.HatorGitDiff?.onActiveFileChanged(filePath);
   window.HatorRunner?.onActiveFileChanged(filePath);
+  window.HatorDebugger?.onActiveFileChanged(filePath);
 }
 
 async function openFile(filePath) {
@@ -343,16 +352,29 @@ function highlightSelectedNode(filePath) {
 
 function buildTreeNode(node, depth) {
   const wrapper = document.createElement('div');
+  const isDir = node.type === 'directory';
 
   const row = document.createElement('div');
   row.className = 'tree-node';
   row.style.paddingLeft = `${8 + depth * 14}px`;
   row.dataset.path = node.path;
 
-  const icon = document.createElement('span');
-  icon.className = 'icon';
-  icon.textContent = node.type === 'directory' ? '▸' : '‖';
-  row.appendChild(icon);
+  // Chevron (dirs only) — rotates when expanded
+  const chevron = document.createElement('span');
+  chevron.className = 'tree-chevron';
+  if (isDir) {
+    chevron.innerHTML = `<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" width="8" height="8"><path d="M1.5 2.5l2.5 2.5 2.5-2.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    chevron.style.transform = 'rotate(-90deg)';
+  }
+  row.appendChild(chevron);
+
+  // File / folder icon
+  const iconEl = document.createElement('span');
+  iconEl.className = 'tree-file-icon';
+  iconEl.innerHTML = window.HatorFileIcons
+    ? window.HatorFileIcons.getIconSvg(node.name, isDir, false)
+    : '';
+  row.appendChild(iconEl);
 
   const label = document.createElement('span');
   label.textContent = node.name;
@@ -360,7 +382,7 @@ function buildTreeNode(node, depth) {
 
   wrapper.appendChild(row);
 
-  if (node.type === 'directory') {
+  if (isDir) {
     const childrenEl = document.createElement('div');
     childrenEl.className = 'tree-children';
     node.children.forEach((child) => {
@@ -370,7 +392,10 @@ function buildTreeNode(node, depth) {
 
     row.addEventListener('click', () => {
       const expanded = childrenEl.classList.toggle('expanded');
-      icon.textContent = expanded ? '▾' : '▸';
+      chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+      if (window.HatorFileIcons) {
+        iconEl.innerHTML = window.HatorFileIcons.getIconSvg(node.name, true, expanded);
+      }
     });
   } else {
     row.addEventListener('click', () => openFile(node.path));

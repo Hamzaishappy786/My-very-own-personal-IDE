@@ -37,6 +37,35 @@
           </svg>
         </button>
 
+        <!-- Debug button: bug icon (amber), disabled unless a .js file is active -->
+        <button id="debug-btn" title="Open a .js file to enable Debug" disabled
+          class="flex items-center justify-center w-9 h-8 text-dracula-comment hover:text-dracula-fg hover:bg-dracula-current/60 transition-all duration-150 hover:scale-110 active:scale-90 shrink-0 disabled:opacity-40 disabled:pointer-events-none disabled:hover:scale-100">
+          <!-- Play state: bug icon -->
+          <svg id="debug-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="w-4 h-4 text-dracula-yellow" fill="currentColor">
+            <!-- antennae -->
+            <line x1="6.5" y1="3.5" x2="4.5" y2="1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <line x1="9.5" y1="3.5" x2="11.5" y2="1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <!-- head -->
+            <circle cx="8" cy="5.5" r="2.5"/>
+            <!-- body -->
+            <rect x="4.5" y="8" width="7" height="7" rx="3.5"/>
+            <!-- center line -->
+            <line x1="8" y1="8" x2="8" y2="15" stroke="#1e1f29" stroke-width="1" fill="none"/>
+            <!-- left legs -->
+            <line x1="4.5" y1="9.5"  x2="1.5" y2="8.5"  stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <line x1="4.5" y1="11.5" x2="1.5" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <line x1="4.5" y1="13.5" x2="1.5" y2="14.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <!-- right legs -->
+            <line x1="11.5" y1="9.5"  x2="14.5" y2="8.5"  stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <line x1="11.5" y1="11.5" x2="14.5" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <line x1="11.5" y1="13.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+          </svg>
+          <!-- Stop state: red square (shown while debug active) -->
+          <svg id="debug-icon-stop" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 text-dracula-red hidden">
+            <rect x="4" y="4" width="8" height="8" rx="1"/>
+          </svg>
+        </button>
+
         <button id="terminal-toggle-btn" title="Toggle terminal (Ctrl+`)" class="flex items-center justify-center w-9 h-8 text-dracula-comment hover:text-dracula-fg hover:bg-dracula-current/60 transition-all duration-150 hover:scale-110 active:scale-90 shrink-0">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
             <path fill-rule="evenodd" d="M0 3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3Zm2.28 2.22a.75.75 0 0 0 0 1.06l1.72 1.72-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06L3.34 5.22a.75.75 0 0 0-1.06 0ZM7.75 9.5a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" clip-rule="evenodd"/>
@@ -51,6 +80,52 @@
         </button>
       </div>
       <div id="editor-container" class="flex-1 overflow-hidden"></div>
+
+      <!-- Debug panel — hidden until a session starts -->
+      <div id="debug-resizer" class="h-1 cursor-row-resize bg-dracula-current/30 hover:bg-dracula-purple transition-colors duration-150 shrink-0" title="Drag to resize debug panel"></div>
+      <div id="debug-panel" class="shrink-0 border-t border-dracula-current/50 bg-dracula-bg" style="height:200px">
+        <!-- Toolbar -->
+        <div class="flex items-center gap-0.5 px-2 h-8 border-b border-dracula-current/50 bg-dracula-current/20 shrink-0">
+          <span class="text-[11px] uppercase tracking-wide text-dracula-comment mr-2">Debug</span>
+          <!-- Continue (F5) -->
+          <button id="debug-continue-btn" title="Continue (F5)" disabled class="debug-ctrl-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor" class="w-3.5 h-3.5 text-dracula-green"><path d="M3 3v10l10-5z"/></svg>
+          </button>
+          <!-- Step Over (F10) -->
+          <button id="debug-step-over-btn" title="Step Over (F10)" disabled class="debug-ctrl-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+              <path d="M8 3.5c3.5 0 4 3.5 0 4"/><path d="M6.5 6.5 8 8l1.5-1.5"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="8" y1="10" x2="8" y2="12"/>
+            </svg>
+          </button>
+          <!-- Step Into (F11) -->
+          <button id="debug-step-in-btn" title="Step Into (F11)" disabled class="debug-ctrl-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+              <line x1="8" y1="2" x2="8" y2="9"/><path d="M5.5 7 8 9.5 10.5 7"/><line x1="4" y1="13" x2="12" y2="13"/>
+            </svg>
+          </button>
+          <!-- Step Out (Shift+F11) -->
+          <button id="debug-step-out-btn" title="Step Out (Shift+F11)" disabled class="debug-ctrl-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+              <line x1="8" y1="14" x2="8" y2="7"/><path d="M5.5 9 8 6.5 10.5 9"/><line x1="4" y1="3" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <!-- Stop (Shift+F5) -->
+          <button id="debug-stop-btn" title="Stop (Shift+F5)" class="debug-ctrl-btn">
+            <svg viewBox="0 0 16 16" fill="currentColor" class="w-3.5 h-3.5 text-dracula-red"><rect x="4" y="4" width="8" height="8" rx="1"/></svg>
+          </button>
+        </div>
+        <!-- Body: Call Stack | Variables -->
+        <div class="flex overflow-hidden" style="height:calc(100% - 32px)">
+          <div class="w-2/5 border-r border-dracula-current/30 flex flex-col min-w-0">
+            <div class="text-[10px] uppercase tracking-wider text-dracula-comment px-2 py-1 shrink-0">Call Stack</div>
+            <div id="debug-call-stack" class="flex-1 overflow-y-auto px-1 pb-1"></div>
+          </div>
+          <div class="flex-1 flex flex-col min-w-0">
+            <div class="text-[10px] uppercase tracking-wider text-dracula-comment px-2 py-1 shrink-0">Variables</div>
+            <div id="debug-variables" class="flex-1 overflow-y-auto px-1 pb-1 font-mono"></div>
+          </div>
+        </div>
+      </div>
 
       <div id="terminal-resizer" class="h-1 cursor-row-resize bg-dracula-current/30 hover:bg-dracula-purple transition-colors duration-150 shrink-0" title="Drag to resize terminal"></div>
 
@@ -106,6 +181,17 @@
             <div class="settings-section" data-section="appearance">
               <div class="px-4 pt-1 pb-1 text-[11px] uppercase tracking-wide text-dracula-comment">Appearance</div>
               <div id="theme-menu-list"></div>
+              <div class="settings-item px-4 py-2" data-keywords="character pop animation typing letters float effects fun">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="text-[13px] text-dracula-fg">Character Pop</span>
+                    <p class="mt-0.5 text-[10px] italic text-dracula-comment">Typed characters float up while you code.</p>
+                  </div>
+                  <div id="char-pop-toggle" class="toggle-switch ml-4 shrink-0">
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="settings-section" data-section="integrations">
@@ -157,6 +243,9 @@
   <script src="terminal.js"></script>
   <script src="gitDiff.js"></script>
   <script src="runner.js"></script>
+  <script src="fileIcons.js"></script>
+  <script src="charPop.js"></script>
+  <script src="debugger.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

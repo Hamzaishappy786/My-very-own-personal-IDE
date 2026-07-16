@@ -180,6 +180,107 @@
     });
   }
 
+  // ── "fun" easter egg ─────────────────────────────────────────────────────
+
+  function launchConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    Object.assign(canvas.style, {
+      position:      'fixed',
+      inset:         '0',
+      pointerEvents: 'none',
+      zIndex:        '9999',
+    });
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    const COLORS = ['#ff79c6','#bd93f9','#8be9fd','#50fa7b','#f1fa8c','#ffb86c','#ff5555'];
+    const pieces = Array.from({ length: 140 }, (_, i) => ({
+      x:     Math.random() * canvas.width,
+      y:     -10 - Math.random() * 300,
+      vx:    (Math.random() - 0.5) * 9,
+      vy:    Math.random() * 3 + 1,
+      w:     7 + Math.random() * 7,
+      h:     3 + Math.random() * 5,
+      rot:   Math.random() * Math.PI * 2,
+      rotV:  (Math.random() - 0.5) * 0.25,
+      color: COLORS[i % COLORS.length],
+    }));
+
+    const start = performance.now();
+    const DURATION = 4000;
+
+    (function frame(now) {
+      const t = (now - start) / DURATION;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let alive = false;
+      for (const p of pieces) {
+        p.x   += p.vx;
+        p.y   += p.vy;
+        p.vy  += 0.18;   // gravity
+        p.vx  *= 0.992;  // air drag
+        p.rot += p.rotV;
+
+        const alpha = t < 0.6 ? 1 : Math.max(0, 1 - (t - 0.6) / 0.4);
+        if (p.y < canvas.height + 30) alive = true;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+
+      if (alive && t < 1) requestAnimationFrame(frame);
+      else canvas.remove();
+    })(start);
+  }
+
+  function triggerFunMode() {
+    if (term) {
+      term.write('\r\n');
+      term.write('\x1b[35m  ✨  \x1b[0m');
+      term.write('\x1b[1;36m F U N   M O D E   A C T I V A T E D \x1b[0m');
+      term.write('\x1b[35m  ✨\x1b[0m\r\n');
+    }
+    launchConfetti();
+  }
+
+  // Buffer to detect "fun\r" typed at the terminal prompt
+  let _funBuf = '';
+
+  // Returns true if data should be forwarded to the pty, false to swallow it.
+  function _trackFun(data) {
+    if (data === '\x7f' || data === '\b') {
+      _funBuf = _funBuf.slice(0, -1);
+    } else if (data === '\r' || data === '\n') {
+      if (_funBuf.trimEnd() === 'fun') {
+        _funBuf = '';
+        // Clear the "fun" already sitting on the prompt without running it.
+        // CMD uses Escape to wipe the current line; PowerShell and posix
+        // shells respond to Ctrl+U (\x15).
+        if (ptyId) {
+          const clearSeq = currentShellId === 'cmd' ? '\x1b' : '\x15';
+          window.api.terminal.input(ptyId, clearSeq);
+        }
+        triggerFunMode();
+        return false; // swallow the Enter — shell never sees it
+      }
+      _funBuf = '';
+    } else if (data.length === 1 && data >= ' ') {
+      _funBuf = (_funBuf + data).slice(-10);
+    } else {
+      _funBuf = ''; // reset on escape sequences / arrows
+    }
+    return true;
+  }
+
+  // ── Terminal creation ─────────────────────────────────────────────────────
+
   async function ensureTerminalCreated() {
     if (term) return;
     if (creating) return creating;
@@ -190,6 +291,7 @@
         fontFamily: 'Consolas, "Courier New", monospace',
         cursorBlink: true,
         scrollback: 5000,
+        copyOnSelect: true,
         theme: currentXtermTheme(),
       });
       fitAddon = new FitAddon.FitAddon();
@@ -207,8 +309,25 @@
 
       await spawnShell(presets[0]?.id);
 
+      // Ctrl+Shift+C → copy selection; Ctrl+Shift+V → paste.
+      // Returning false tells xterm to swallow the event (don't send to pty).
+      term.attachCustomKeyEventHandler((e) => {
+        if (e.ctrlKey && e.shiftKey && e.code === 'KeyC' && e.type === 'keydown') {
+          const sel = term.getSelection();
+          if (sel) navigator.clipboard.writeText(sel).catch(() => {});
+          return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.code === 'KeyV' && e.type === 'keydown') {
+          navigator.clipboard.readText().then((text) => {
+            if (ptyId && text) window.api.terminal.input(ptyId, text);
+          }).catch(() => {});
+          return false;
+        }
+        return true;
+      });
+
       term.onData((data) => {
-        if (ptyId) window.api.terminal.input(ptyId, data);
+        if (_trackFun(data) && ptyId) window.api.terminal.input(ptyId, data);
       });
 
       term.onResize(({ cols, rows }) => {

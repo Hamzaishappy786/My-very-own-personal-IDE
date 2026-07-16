@@ -9,20 +9,20 @@
 
 ---
 
-Hator is a lightweight desktop code editor built with Electron and Monaco (yes, the same editor engine that powers VS Code — ironic, I know). It's fast to open, looks good, and has just the stuff you actually need.
+Hator is a lightweight desktop code editor built with Electron and Monaco (yes, the same editor engine that powers VS Code, ironic, I know). It's fast to open, looks good, and has just the stuff you actually need.
 
 ## what it does
 
-- **File tree** — open a folder, browse your files, click to open them in tabs
-- **Monaco editor** — syntax highlighting, autocomplete, all that good stuff, for basically every language
-- **Tabs** — multiple files open at once, dirty indicator (●) when something's unsaved
-- **Auto-save** — saves your file 2 seconds after you stop typing. you won't lose work
-- **Integrated terminal** — real shell (PowerShell, CMD on Windows; zsh, bash on Mac/Linux) right inside the editor. Ctrl+` to toggle
-- **Git diff gutter** — shows you exactly which lines you added/changed/deleted since the last commit, inline in the editor margin. Updates as you type
-- **Run button** — click ▶ to run the current file. Works with Python, Node.js, Ruby, PHP, Go, shell scripts. Output goes straight to your terminal
-- **AI error explanations** — when your code crashes, Groq (llama-3.3-70b) reads the error and explains what went wrong in plain English, right below the output
-- **Themes** — Dracula, VS Dark, VS Light, One Dark Pro. Switch anytime from Settings
-- **Settings modal** — searchable, so you can find things fast
+- **File tree**: open a folder, browse your files, click to open them in tabs
+- **Monaco editor**: syntax highlighting, autocomplete, all that good stuff, for basically every language
+- **Tabs**: multiple files open at once, dirty indicator (●) when something's unsaved
+- **Auto-save**: saves your file 2 seconds after you stop typing. you won't lose work
+- **Integrated terminal**: real shell (PowerShell, CMD on Windows; zsh, bash on Mac/Linux) right inside the editor. Ctrl+` to toggle
+- **Git diff gutter**: shows you exactly which lines you added/changed/deleted since the last commit, inline in the editor margin. Updates as you type
+- **Run button**: click ▶ to run the current file. Works with Python, Node.js, Ruby, PHP, Go, shell scripts. Output goes straight to your terminal
+- **AI error explanations**: when your code crashes, Groq (llama-3.3-70b) reads the error and explains what went wrong in plain English, right below the output
+- **Themes**: Dracula, VS Dark, VS Light, One Dark Pro. Switch anytime from Settings
+- **Settings modal**: searchable, so you can find things fast
 
 ## getting started
 
@@ -50,7 +50,7 @@ Open a Python/JS/Ruby/etc. file, hit the ▶ button in the toolbar. Hator will:
 1. `cd` into the file's directory in the terminal
 2. Run it with the right interpreter (`python`, `node`, etc.)
 3. Show you the output live
-4. If it fails — show a plain-English explanation of what went wrong
+4. If it fails, show a plain-English explanation of what went wrong
 
 ## keyboard shortcuts
 
@@ -61,12 +61,12 @@ Open a Python/JS/Ruby/etc. file, hit the ▶ button in the toolbar. Hator will:
 
 ## tech stack
 
-- **Electron** — desktop shell
-- **Monaco Editor** — the actual editor
-- **xterm.js + node-pty** — the terminal
-- **Tailwind CSS** — styling
-- **Groq API** — AI error explanations
-- **Myers diff algorithm** — git gutter diffing (runs in a worker thread so it never blocks the UI)
+- **Electron**: desktop shell
+- **Monaco Editor**: the actual editor
+- **xterm.js + node-pty**: the terminal
+- **Tailwind CSS**: styling
+- **Groq API**: AI error explanations
+- **Myers diff algorithm**: git gutter diffing (runs in a worker thread so it never blocks the UI)
 
 ## running tests
 

@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply h-full w-full overflow-hidden bg-dracula-bg text-dracula-fg;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+  }
+}
+
+@layer components {
+  .tree-node {
+    @apply flex items-center px-2 py-[2px] whitespace-nowrap cursor-pointer select-none rounded-sm transition-all duration-150 ease-out;
+  }
+  .tree-node:hover {
+    @apply bg-dracula-current/60 translate-x-0.5;
+  }
+  .tree-node:active {
+    @apply scale-[0.98];
+  }
+  .tree-node.selected {
+    @apply bg-dracula-current text-dracula-cyan;
+  }
+  .tree-node .icon {
+    @apply mr-1.5 w-3.5 inline-block text-center shrink-0 text-dracula-comment transition-transform duration-150;
+  }
+  .tree-node:hover .icon {
+    @apply scale-110 text-dracula-fg;
+  }
+
+  .tree-children {
+    @apply hidden;
+  }
+  .tree-children.expanded {
+    @apply block;
+  }
+
+  .tab {
+    @apply flex items-center gap-2 px-3 py-1.5 text-[13px] bg-dracula-current/40 border-r border-dracula-bg cursor-pointer whitespace-nowrap transition-[opacity,transform] duration-150 ease-out;
+  }
+  .tab.active {
+    @apply bg-dracula-bg border-t-2 border-t-dracula-purple text-dracula-fg;
+  }
+  .tab:not(.active) {
+    @apply text-dracula-comment;
+  }
+  .tab:not(.active):hover {
+    @apply bg-dracula-current/60 text-dracula-fg;
+  }
+  .tab.tab-enter {
+    @apply opacity-0 scale-95 -translate-y-0.5;
+  }
+  .tab.tab-exit {
+    @apply opacity-0 scale-95;
+  }
+  .tab .close-btn {
+    @apply opacity-60 px-0.5 rounded hover:opacity-100 hover:bg-dracula-current hover:scale-125 active:scale-90 transition-all duration-150;
+  }
+  .tab .dirty-dot {
+    @apply text-dracula-yellow text-xs leading-none;
+  }
+
+  .theme-menu-item {
+    @apply flex items-center justify-between w-full px-4 py-1.5 text-left text-[13px] text-dracula-fg cursor-pointer transition-colors duration-100;
+  }
+  .theme-menu-item:hover {
+    @apply bg-dracula-current/60;
+  }
+  .theme-menu-item.active {
+    @apply text-dracula-cyan;
+  }
+
+  #settings-modal.open {
+    @apply opacity-100 pointer-events-auto;
+  }
+  #settings-modal.open #settings-panel {
+    @apply scale-100;
+  }
+
+  .toggle-switch {
+    @apply relative inline-flex h-5 w-9 shrink-0 items-center rounded-full bg-dracula-current transition-colors duration-200 cursor-pointer;
+  }
+  .toggle-switch.on {
+    @apply bg-dracula-purple;
+  }
+  .toggle-knob {
+    @apply inline-block h-3.5 w-3.5 translate-x-1 transform rounded-full bg-dracula-fg transition-transform duration-200;
+  }
+  .toggle-switch.on .toggle-knob {
+    @apply translate-x-[18px];
+  }
+
+  .hator-slider {
+    @apply appearance-none h-1.5 rounded-full bg-dracula-current cursor-pointer;
+  }
+  .hator-slider::-webkit-slider-thumb {
+    @apply appearance-none w-3.5 h-3.5 rounded-full bg-dracula-purple transition-transform duration-150;
+  }
+  .hator-slider::-webkit-slider-thumb:hover {
+    @apply scale-125 bg-dracula-pink;
+  }
+  .hator-slider::-moz-range-thumb {
+    @apply w-3.5 h-3.5 rounded-full border-none bg-dracula-purple transition-transform duration-150;
+  }
+  .hator-slider::-moz-range-thumb:hover {
+    @apply scale-125 bg-dracula-pink;
+  }
+
+  /* thin dracula-flavored scrollbars */
+  #file-tree::-webkit-scrollbar,
+  #tabs::-webkit-scrollbar,
+  #settings-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  #file-tree::-webkit-scrollbar-thumb,
+  #tabs::-webkit-scrollbar-thumb,
+  #settings-body::-webkit-scrollbar-thumb {
+    @apply bg-dracula-current rounded;
+  }
+
+  /*
+   * The integrated terminal panel starts closed. Using a dedicated
+   * display:none/flex toggle here (rather than Tailwind's `hidden` utility)
+   * avoids fighting over the `display` property with any `flex` utility
+   * class on the same element.
+   */
+  #terminal-panel {
+    display: none;
+    flex-direction: column;
+  }
+  #terminal-panel.visible {
+    display: flex;
+  }
+  #terminal-mount {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  #terminal-resizer {
+    display: none;
+  }
+  #terminal-resizer.visible {
+    display: block;
+  }
+}
+
+/*
+ * Inline Git diff gutter. Monaco renders `linesDecorationsClassName` as a
+ * small fixed-width box in the margin between the line numbers and the
+ * glyph margin, positioned absolutely by Monaco itself -- these rules just
+ * paint within that box, they don't need their own positioning context.
+ */
+.monaco-editor .hator-git-added,
+.monaco-editor .hator-git-modified {
+  position: relative;
+}
+.monaco-editor .hator-git-added::before,
+.monaco-editor .hator-git-modified::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+.monaco-editor .hator-git-added::before {
+  background-color: #50fa7b;
+}
+.monaco-editor .hator-git-modified::before {
+  background-color: #8be9fd;
+}
+.monaco-editor .hator-git-deleted {
+  position: relative;
+}
+.monaco-editor .hator-git-deleted::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid #ff5555;
+  z-index: 10;
+}
